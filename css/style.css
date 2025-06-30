@@ -1,0 +1,23 @@
+.board_container {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 1fr);
+
+    gap: 15px;
+}
+
+.board_space {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* justify-self: center; */
+
+    height: 100px;
+    width: 100px;
+
+    font-family: sans-serif;
+    font-size: 15ch;
+
+    background-color: aquamarine;
+}
