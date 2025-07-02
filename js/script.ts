@@ -170,6 +170,8 @@ function CreateBoard() {
     set_current_player(1);
     let match_status = "on going";
 
+    const score_array = [] as Array<string>;
+
     const reset_match_button = document.querySelector(".reset_match_button") as HTMLButtonElement;
     reset_match_button.addEventListener("click", reset_or_restart_match);
 
@@ -274,9 +276,15 @@ function CreateBoard() {
             if (result_number) break;
         }
 
-        if (result_number === 1) console.log("Congratulations! X Won!")
+        if (result_number === 1) {
+            console.log("Congratulations! X Won!");
+            score_array.push("x");
+        }
         
-        else if (result_number === 2) console.log("Congratulations! O Won!")
+        else if (result_number === 2) {
+            console.log("Congratulations! O Won!");
+            score_array.push("o");
+        }
         
         else console.log("Game not finished yet");
 
@@ -284,7 +292,10 @@ function CreateBoard() {
     }
 
     function check_draw() {
-        return row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
+        const game_draw = row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
+
+        if (game_draw)
+        return 
     }
 
     function reset_board() {

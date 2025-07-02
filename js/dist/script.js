@@ -137,6 +137,7 @@ function CreateBoard() {
     var current_player = 1;
     set_current_player(1);
     var match_status = "on going";
+    var score_array = [];
     var reset_match_button = document.querySelector(".reset_match_button");
     reset_match_button.addEventListener("click", reset_or_restart_match);
     var _a = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_1 = _a[0], mark_2 = _a[1], mark_3 = _a[2];
@@ -224,16 +225,22 @@ function CreateBoard() {
             if (result_number)
                 break;
         }
-        if (result_number === 1)
+        if (result_number === 1) {
             console.log("Congratulations! X Won!");
-        else if (result_number === 2)
+            score_array.push("x");
+        }
+        else if (result_number === 2) {
             console.log("Congratulations! O Won!");
+            score_array.push("o");
+        }
         else
             console.log("Game not finished yet");
         return result_number;
     }
     function check_draw() {
-        return row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
+        var game_draw = row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
+        if (game_draw)
+            return;
     }
     function reset_board() {
         for (var _i = 0, board_1 = board; _i < board_1.length; _i++) {
