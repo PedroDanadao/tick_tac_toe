@@ -37,6 +37,30 @@ var PlayerDisplay = (function () {
     }
     return { change_player: change_player };
 })();
+var ChangeGameBoard = (function () {
+    var game_board_element = document.querySelector(".board_container");
+    var background_image_element = document.querySelector(".background_image");
+    function toggle_game_board() {
+        var current_board = game_board_element.className;
+        var new_image = '';
+        var new_background_image = '';
+        var new_class_name = '';
+        if (current_board == "board_container crayon_style") {
+            new_image = "images/game_lines_pencil.png";
+            new_class_name = "board_container pen_style";
+            new_background_image = "./images/notebook_page.jpg";
+        }
+        else {
+            new_image = "images/game_lines_crayon.png";
+            new_class_name = "board_container crayon_style";
+            new_background_image = "./images/black_board.jpg";
+        }
+        game_board_element.style.backgroundImage = "url('" + new_image + "')";
+        game_board_element.className = new_class_name;
+        background_image_element.setAttribute("src", new_background_image);
+    }
+    return { toggle_game_board: toggle_game_board };
+})();
 function CreateMarkSpace() {
     var mark_string = '-';
     var div_element = null;
@@ -45,13 +69,17 @@ function CreateMarkSpace() {
     }
     function mark_x() {
         mark_string = 'x';
-        if (div_element !== null)
+        if (div_element !== null) {
             div_element.innerText = "X";
+            div_element.setAttribute("name", 'x');
+        }
     }
     function mark_o() {
         mark_string = 'o';
-        if (div_element !== null)
+        if (div_element !== null) {
             div_element.innerText = "O";
+            div_element.setAttribute("name", 'o');
+        }
     }
     function mark_from_string(x_or_o) {
         if (x_or_o === 'x')
@@ -80,6 +108,16 @@ function CreateMarkSpace() {
         set_div_element: set_div_element
     };
 }
+var HoverColor = (function () {
+    var board_container = document.querySelector(".board_container");
+    function change_hover_color(color_index) {
+        if (color_index === 1)
+            board_container.setAttribute("data-", "red");
+        else
+            board_container.setAttribute("data-", "blue");
+    }
+    return { change_hover_color: change_hover_color };
+})();
 function CreateLine(mark_1, mark_2, mark_3) {
     var line_array = [mark_1, mark_2, mark_3];
     function mark(x_or_o, array_position) {
@@ -138,8 +176,11 @@ function CreateBoard() {
     set_current_player(1);
     var match_status = "on going";
     var score_array = [];
+    var color_recorder_div = document.querySelector(".color_recorder");
     var reset_match_button = document.querySelector(".reset_match_button");
     reset_match_button.addEventListener("click", reset_or_restart_match);
+    var toggle_game_board_button = document.querySelector(".toggle_game_board");
+    toggle_game_board_button.addEventListener("click", ChangeGameBoard.toggle_game_board);
     var _a = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_1 = _a[0], mark_2 = _a[1], mark_3 = _a[2];
     var _b = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_4 = _b[0], mark_5 = _b[1], mark_6 = _b[2];
     var _c = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_7 = _c[0], mark_8 = _c[1], mark_9 = _c[2];
@@ -194,10 +235,13 @@ function CreateBoard() {
         }
         // check if a win or a draw was achieved. If not, then the game continues
         var result = check_win();
-        var draw = check_draw();
+        // needed to do this to avoid a draw being pushed to the score when a player wins and all spaces are marked
+        var draw = false;
+        if (!result)
+            draw = check_draw();
         if ((!result) && (!draw))
             return;
-        // if a win was achieved, then change the text in the reset_match_button to Play Again
+        // if a win or a draw was achieved, then change the text in the reset_match_button to Play Again
         reset_match_button.textContent = "Play Again";
         // also change the match status to finished
         match_status = "finished";
@@ -240,7 +284,8 @@ function CreateBoard() {
     function check_draw() {
         var game_draw = row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
         if (game_draw)
-            return;
+            score_array.push('d');
+        return game_draw;
     }
     function reset_board() {
         for (var _i = 0, board_1 = board; _i < board_1.length; _i++) {
@@ -251,6 +296,7 @@ function CreateBoard() {
     function set_current_player(player_number) {
         current_player = player_number;
         PlayerDisplay.change_player(player_number);
+        HoverColor.change_hover_color(player_number);
     }
     function reset_or_restart_match() {
         reset_match_button.textContent = "Reset Match";

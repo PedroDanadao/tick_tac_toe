@@ -46,6 +46,37 @@ const PlayerDisplay = (function() {
 })();
 
 
+const ChangeGameBoard = (function() {
+    const game_board_element = document.querySelector(".board_container") as HTMLDivElement;
+    const background_image_element = document.querySelector(".background_image") as HTMLImageElement;
+
+    function toggle_game_board() {
+        const current_board = game_board_element.className;
+
+        let new_image = '';
+        let new_background_image = '';
+        let new_class_name = '';
+
+        if (current_board == "board_container crayon_style") {
+            new_image = "images/game_lines_pencil.png";
+            new_class_name = "board_container pen_style";
+            new_background_image = "./images/notebook_page.jpg";
+        }
+        else {
+            new_image = "images/game_lines_crayon.png";
+            new_class_name = "board_container crayon_style";
+            new_background_image = "./images/black_board.jpg";
+        }
+
+        game_board_element.style.backgroundImage = `url('${new_image}')`;
+        game_board_element.className = new_class_name;
+        background_image_element.setAttribute("src", new_background_image);
+    }
+
+    return {toggle_game_board};
+})();
+
+
 function CreateMarkSpace() {
     let mark_string = '-';
     let div_element = null as HTMLDivElement;
@@ -57,12 +88,18 @@ function CreateMarkSpace() {
     function mark_x() {
         mark_string = 'x';
 
-        if (div_element !== null) div_element.innerText = "X";
+        if (div_element !== null) {
+            div_element.innerText = "X";
+            div_element.setAttribute("name", 'x')
+        }
     }
     
     function mark_o() {
         mark_string = 'o';
-        if (div_element !== null) div_element.innerText = "O";
+        if (div_element !== null) {
+            div_element.innerText = "O";
+            div_element.setAttribute("name", 'o')
+        }
     }
     
     function mark_from_string(x_or_o) {
@@ -95,6 +132,19 @@ function CreateMarkSpace() {
         set_div_element
     }
 }
+
+
+const HoverColor = (function() {
+    const board_container = document.querySelector(".board_container") as HTMLDivElement;
+
+    function change_hover_color(color_index: number) {
+        if (color_index === 1) board_container.setAttribute("data-", "red");
+
+        else board_container.setAttribute("data-", "blue");
+    }
+
+    return {change_hover_color};
+})();
 
 
 function CreateLine(mark_1: typeof CreateMarkSpace, mark_2: typeof CreateMarkSpace, mark_3: typeof CreateMarkSpace) {
@@ -172,8 +222,13 @@ function CreateBoard() {
 
     const score_array = [] as Array<string>;
 
+    const color_recorder_div = document.querySelector(".color_recorder") as HTMLDivElement;
+
     const reset_match_button = document.querySelector(".reset_match_button") as HTMLButtonElement;
     reset_match_button.addEventListener("click", reset_or_restart_match);
+
+    const toggle_game_board_button = document.querySelector(".toggle_game_board") as HTMLButtonElement;
+    toggle_game_board_button.addEventListener("click", ChangeGameBoard.toggle_game_board);
 
     const [mark_1, mark_2, mark_3] = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()]
     const [mark_4, mark_5, mark_6] = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()]
@@ -239,10 +294,14 @@ function CreateBoard() {
 
         // check if a win or a draw was achieved. If not, then the game continues
         const result = check_win();
-        const draw = check_draw();
+        
+        // needed to do this to avoid a draw being pushed to the score when a player wins and all spaces are marked
+        let draw = false;
+        if (!result) draw = check_draw();
+        
         if ((!result) && (!draw))  return;
 
-        // if a win was achieved, then change the text in the reset_match_button to Play Again
+        // if a win or a draw was achieved, then change the text in the reset_match_button to Play Again
         reset_match_button.textContent = "Play Again";
         // also change the match status to finished
         match_status = "finished";
@@ -294,8 +353,8 @@ function CreateBoard() {
     function check_draw() {
         const game_draw = row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
 
-        if (game_draw)
-        return 
+        if (game_draw) score_array.push('d');
+        return game_draw;
     }
 
     function reset_board() {
@@ -307,6 +366,8 @@ function CreateBoard() {
     function set_current_player(player_number: number) {
         current_player = player_number;
         PlayerDisplay.change_player(player_number);
+
+        HoverColor.change_hover_color(player_number);
     }
 
     function reset_or_restart_match() {
