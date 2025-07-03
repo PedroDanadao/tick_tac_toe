@@ -15,7 +15,6 @@
   font-style: normal;
 }
 
-
 html, body {
     margin: 0;
     display: flex;
@@ -25,12 +24,24 @@ html, body {
 
     height: 100%;
 
-    font-family: "Indie Flower", sans-serif;
+    font-family: "Cabin Sketch", sans-serif;
     font-optical-sizing: auto;
-    /* font-weight: <weight>; */
     font-style: normal;
 
-    /* flex-grow: 1; */
+    color: white;
+
+}
+
+button {
+    font-family: inherit;
+    font-weight: bold;
+    color: inherit;
+    background: none;
+    border: none;
+}
+
+.toggle_matches_table_button {
+    margin-top: 10px;
 }
 
 h1 {
@@ -43,7 +54,7 @@ h1 {
     z-index: -1;
 }
 
-.toggle_game_board {
+.toggle_game_board_button {
     position: fixed;
     top: 10px;
     left: 10px;
@@ -70,18 +81,15 @@ h1 {
     /* background-image: url("../images/game_lines_pencil.png"); */
     background-image: url("../images/game_lines_crayon.png");
     background-position: center;
+
+    margin-top: 15px;
 }
 
-.win_line {
+.win_line, .win_side_line {
     grid-row: 1 / 4;
     grid-column: 1 / 4;
-    /* width: 330px; */
-}
-.win_side_line {
-    grid-row: 1 / 4;
-    grid-column: 1 / 4;
-    /* width: 330px; */
-    rotate: 0deg;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .row_0_0 {
@@ -131,10 +139,16 @@ h1 {
     height: 100px;
     width: 100px;
 
-    font-size: 15ch;
     border: 2px solid rgba(0, 0, 0, 0);
 
     /* background-color: aquamarine; */
+}
+
+.crayon_style .board_space {
+    font-size: 10ch;
+}
+.pen_style .board_space {
+    font-size: 15ch;
 }
 
 .board_space:hover {
@@ -179,3 +193,43 @@ h1 {
     color: white;
 }
 
+.reset_match_button {
+    border: 2px solid rgba(255, 243, 243, 0);
+}
+
+.crayon_button:hover {
+    border: 2px white;
+    border-style: groove;
+}
+
+.pen_button:hover {
+    border: 2px blue;
+    border-style: groove;
+}
+
+
+th, td {
+    padding: 2px 10px;
+}
+
+td {
+    text-align: center;
+}
+
+.pen_table .td_x {
+    color: red;
+}
+
+.pen_table .td_draw {
+    color: black;
+}
+
+table {
+    visibility: hidden;
+}
+
+.score_container {
+    position: fixed;
+    top: 50px;
+    left: 10px;
+}

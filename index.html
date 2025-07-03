@@ -14,9 +14,39 @@
 <body>
     <img src="./images/black_board.jpg" alt="notebook page background image" class="background_image">
 
-    <button class="toggle_game_board">Toggle Game Board</button>
+    <button class="toggle_game_board_button crayon_button">Toggle Game Board</button>
 
     <!-- <h1>Tic Tac Toe</h1> -->
+
+    <div class="score_container">
+        <div class="player_1_win_count">Player 1(X) number of wins: <b>0</b></div>
+        <div class="player_2_win_count">Player 2(O) number of wins: <b>0</b></div>
+        <div class="draws_count">Number of draws: <b>0</b></div>
+        <button class="toggle_matches_table_button crayon_button">Show Matches Table</button>
+
+        <table class="crayon_table">
+            <thead>
+                <tr>
+                    <th>Match Number</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- <tr>
+                    <td>1</td>
+                    <td>X</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>O</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Draw</td>
+                </tr> -->
+            </tbody>
+        </table>
+    </div>
 
     <div class="game_container">
         <div class="current_player">Player 1</div>
@@ -32,7 +62,7 @@
             <img src="./images/crayon_win_side_line.png" alt="Win Side Line" class="win_side_line">
         </div>
     
-        <button class="reset_match_button">Reset Match</button>
+        <button class="reset_match_button crayon_button">Reset Match</button>
     </div>
 </body>
 </html>

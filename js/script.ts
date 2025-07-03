@@ -49,6 +49,9 @@ const PlayerDisplay = (function() {
 const ChangeGameBoard = (function() {
     const game_board_element = document.querySelector(".board_container") as HTMLDivElement;
     const background_image_element = document.querySelector(".background_image") as HTMLImageElement;
+    const central_line_element = document.querySelector(".win_line") as HTMLImageElement;
+    const win_side_line_element = document.querySelector(".win_side_line") as HTMLImageElement;
+    const body_element = document.querySelector("body") as HTMLBodyElement;
 
     function toggle_game_board() {
         const current_board = game_board_element.className;
@@ -56,24 +59,99 @@ const ChangeGameBoard = (function() {
         let new_image = '';
         let new_background_image = '';
         let new_class_name = '';
+        let new_central_line_image = '';
+        let new_side_line_image = '';
+
+        let new_font = '';
+        let new_font_color = '';
 
         if (current_board == "board_container crayon_style") {
             new_image = "images/game_lines_pencil.png";
             new_class_name = "board_container pen_style";
             new_background_image = "./images/notebook_page.jpg";
+            new_central_line_image = "./images/pen_win_line.png"
+            new_side_line_image = "./images/pen_win_side_line.png"
+            new_font = "Indie Flower";
+            new_font_color = "blue"
+
+            MatchesTable.change_style("pen");
         }
         else {
             new_image = "images/game_lines_crayon.png";
             new_class_name = "board_container crayon_style";
             new_background_image = "./images/black_board.jpg";
+            new_central_line_image = "./images/crayon_win_line.png"
+            new_side_line_image = "./images/crayon_win_side_line.png"
+            new_font = "Cabin Sketch";
+            new_font_color = "white"
+
+            MatchesTable.change_style("crayon");
         }
 
         game_board_element.style.backgroundImage = `url('${new_image}')`;
         game_board_element.className = new_class_name;
         background_image_element.setAttribute("src", new_background_image);
+        central_line_element.setAttribute("src", new_central_line_image);
+        win_side_line_element.setAttribute("src", new_side_line_image);
+
+        body_element.style.fontFamily = new_font;
+        body_element.style.color = new_font_color;
     }
 
     return {toggle_game_board};
+})();
+
+
+const MatchesTable = (function() {
+    const table_element = document.querySelector("table") as HTMLTableElement;
+    const table_body_element = document.querySelector("tbody") as HTMLTableSectionElement;
+
+    const player_1_count_bold = document.querySelector(".player_1_win_count>b") as HTMLDivElement;
+    const player_2_count_bold = document.querySelector(".player_2_win_count>b") as HTMLDivElement;
+    const draw_count_bold = document.querySelector(".draws_count>b") as HTMLDivElement;
+
+    function toggle_matches_table() {
+        if (table_element.style.visibility === "visible") {
+            table_element.style.visibility = "hidden";
+        }
+        else {
+            table_element.style.visibility = "visible";
+        }
+    }
+
+    function change_style(style_string: string) {
+        if (style_string === "crayon") {
+            table_element.className = "crayon_table";
+        }
+        else {
+            table_element.className = "pen_table";
+        }
+    }
+
+    function add_win(winner: string) {
+        const new_row = table_body_element.insertRow() as HTMLTableRowElement;
+        
+        const number_of_rows = table_body_element.rows.length;
+        const match_number_cell = new_row.insertCell(0);
+        match_number_cell.textContent = `${number_of_rows}`;
+
+        const winner_cell = new_row.insertCell(1);
+        winner_cell.textContent = winner;
+        if (winner === "X"){
+            winner_cell.className = "td_x";
+            player_1_count_bold.textContent = String(Number(player_1_count_bold.textContent) + 1);
+        }
+        else if (winner === "Draw"){
+            winner_cell.className = "td_draw";
+            draw_count_bold.textContent = String(Number(draw_count_bold.textContent) + 1);
+
+        }
+        else {
+            player_2_count_bold.textContent = String(Number(player_2_count_bold.textContent) + 1);
+        }
+    }
+
+    return {toggle_matches_table, change_style, add_win};
 })();
 
 
@@ -147,7 +225,8 @@ const HoverColor = (function() {
 })();
 
 
-function CreateLine(mark_1: typeof CreateMarkSpace, mark_2: typeof CreateMarkSpace, mark_3: typeof CreateMarkSpace) {
+function CreateLine(mark_1: typeof CreateMarkSpace, mark_2: typeof CreateMarkSpace, mark_3: typeof CreateMarkSpace,
+                    win_line_to_use: HTMLImageElement, degree_to_turn: number) {
     const line_array = [mark_1, mark_2, mark_3];
 
     function mark(x_or_o: string, array_position: number) {
@@ -203,6 +282,22 @@ function CreateLine(mark_1: typeof CreateMarkSpace, mark_2: typeof CreateMarkSpa
         line_array[i].set_div_element(div_element);
     }
 
+    function set_win_line(line_element: HTMLImageElement) {
+        win_line_to_use = line_element;
+    }
+
+    function set_line_rotation(rotation_value: number) {
+        degree_to_turn = rotation_value;
+    }
+
+    function show_and_rotate_line() {
+        // win_line_to_use.setAttribute("rotate", `${degree_to_turn}deg`);
+        // win_line_to_use.setAttribute("visibility", "visible");
+
+        win_line_to_use.style.visibility = "visible";
+        win_line_to_use.style.rotate = `${degree_to_turn}deg`;
+    }
+
     return {
         mark_x,
         mark_o,
@@ -210,7 +305,10 @@ function CreateLine(mark_1: typeof CreateMarkSpace, mark_2: typeof CreateMarkSpa
         print_line,
         reset_line,
         set_div_element,
-        check_all_marked
+        check_all_marked,
+        set_win_line,
+        set_line_rotation,
+        show_and_rotate_line
     };
 }
 
@@ -222,28 +320,32 @@ function CreateBoard() {
 
     const score_array = [] as Array<string>;
 
-    const color_recorder_div = document.querySelector(".color_recorder") as HTMLDivElement;
-
     const reset_match_button = document.querySelector(".reset_match_button") as HTMLButtonElement;
     reset_match_button.addEventListener("click", reset_or_restart_match);
 
-    const toggle_game_board_button = document.querySelector(".toggle_game_board") as HTMLButtonElement;
+    const toggle_game_board_button = document.querySelector(".toggle_game_board_button") as HTMLButtonElement;
     toggle_game_board_button.addEventListener("click", ChangeGameBoard.toggle_game_board);
+
+    const central_win_line = document.querySelector(".win_line") as HTMLImageElement;
+    const win_side_line = document.querySelector(".win_side_line") as HTMLImageElement;
+
+    const toggle_matches_table_button = document.querySelector(".toggle_matches_table_button") as HTMLButtonElement;
+    toggle_matches_table_button.addEventListener("click", MatchesTable.toggle_matches_table);
 
     const [mark_1, mark_2, mark_3] = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()]
     const [mark_4, mark_5, mark_6] = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()]
     const [mark_7, mark_8, mark_9] = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()]
     
-    const row_1 = CreateLine(mark_1, mark_2, mark_3);
-    const row_2 = CreateLine(mark_4, mark_5, mark_6);
-    const row_3 = CreateLine(mark_7, mark_8, mark_9);
+    const row_1 = CreateLine(mark_1, mark_2, mark_3, win_side_line, 90);
+    const row_2 = CreateLine(mark_4, mark_5, mark_6, central_win_line, 90);
+    const row_3 = CreateLine(mark_7, mark_8, mark_9, win_side_line, 270);
     
-    const column_1 = CreateLine(mark_1, mark_4, mark_7);
-    const column_2 = CreateLine(mark_2, mark_5, mark_8);
-    const column_3 = CreateLine(mark_3, mark_6, mark_9);
+    const column_1 = CreateLine(mark_1, mark_4, mark_7, win_side_line, 0);
+    const column_2 = CreateLine(mark_2, mark_5, mark_8, central_win_line, 0);
+    const column_3 = CreateLine(mark_3, mark_6, mark_9, win_side_line, 180);
     
-    const diagonal_1 = CreateLine(mark_1, mark_5, mark_9);
-    const diagonal_2 = CreateLine(mark_7, mark_5, mark_3);
+    const diagonal_1 = CreateLine(mark_1, mark_5, mark_9, central_win_line, 135);
+    const diagonal_2 = CreateLine(mark_7, mark_5, mark_3, central_win_line, 45);
     
     const all_lines = [
         row_1, row_2, row_3,
@@ -328,21 +430,26 @@ function CreateBoard() {
 
     function check_win() {
         let result_number = 0;
-
+        
         for (let line of all_lines) {
             result_number = line.check_line_win();
 
-            if (result_number) break;
+            if (result_number) {
+                line.show_and_rotate_line();
+                break
+            };
         }
 
         if (result_number === 1) {
             console.log("Congratulations! X Won!");
             score_array.push("x");
+            MatchesTable.add_win("X");
         }
         
         else if (result_number === 2) {
             console.log("Congratulations! O Won!");
             score_array.push("o");
+            MatchesTable.add_win("O");
         }
         
         else console.log("Game not finished yet");
@@ -353,7 +460,10 @@ function CreateBoard() {
     function check_draw() {
         const game_draw = row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
 
-        if (game_draw) score_array.push('d');
+        if (game_draw){
+            score_array.push('d');
+            MatchesTable.add_win("Draw");
+        }
         return game_draw;
     }
 
@@ -361,6 +471,9 @@ function CreateBoard() {
         for (let line_obj of board) {
             line_obj.reset_line();
         }
+
+        win_side_line.style.visibility = "hidden";
+        central_win_line.style.visibility = "hidden";
     }
 
     function set_current_player(player_number: number) {
@@ -377,10 +490,15 @@ function CreateBoard() {
         match_status = "on going";
     }
 
+    function print_score_array() {
+        console.table(score_array);
+    }
+
     return {
         mark_space,
         print_board,
-        check_win
+        check_win,
+        print_score_array
     }
 }
 

@@ -40,26 +40,90 @@ var PlayerDisplay = (function () {
 var ChangeGameBoard = (function () {
     var game_board_element = document.querySelector(".board_container");
     var background_image_element = document.querySelector(".background_image");
+    var central_line_element = document.querySelector(".win_line");
+    var win_side_line_element = document.querySelector(".win_side_line");
+    var body_element = document.querySelector("body");
     function toggle_game_board() {
         var current_board = game_board_element.className;
         var new_image = '';
         var new_background_image = '';
         var new_class_name = '';
+        var new_central_line_image = '';
+        var new_side_line_image = '';
+        var new_font = '';
+        var new_font_color = '';
         if (current_board == "board_container crayon_style") {
             new_image = "images/game_lines_pencil.png";
             new_class_name = "board_container pen_style";
             new_background_image = "./images/notebook_page.jpg";
+            new_central_line_image = "./images/pen_win_line.png";
+            new_side_line_image = "./images/pen_win_side_line.png";
+            new_font = "Indie Flower";
+            new_font_color = "blue";
+            MatchesTable.change_style("pen");
         }
         else {
             new_image = "images/game_lines_crayon.png";
             new_class_name = "board_container crayon_style";
             new_background_image = "./images/black_board.jpg";
+            new_central_line_image = "./images/crayon_win_line.png";
+            new_side_line_image = "./images/crayon_win_side_line.png";
+            new_font = "Cabin Sketch";
+            new_font_color = "white";
+            MatchesTable.change_style("crayon");
         }
         game_board_element.style.backgroundImage = "url('" + new_image + "')";
         game_board_element.className = new_class_name;
         background_image_element.setAttribute("src", new_background_image);
+        central_line_element.setAttribute("src", new_central_line_image);
+        win_side_line_element.setAttribute("src", new_side_line_image);
+        body_element.style.fontFamily = new_font;
+        body_element.style.color = new_font_color;
     }
     return { toggle_game_board: toggle_game_board };
+})();
+var MatchesTable = (function () {
+    var table_element = document.querySelector("table");
+    var table_body_element = document.querySelector("tbody");
+    var player_1_count_bold = document.querySelector(".player_1_win_count>b");
+    var player_2_count_bold = document.querySelector(".player_2_win_count>b");
+    var draw_count_bold = document.querySelector(".draws_count>b");
+    function toggle_matches_table() {
+        if (table_element.style.visibility === "visible") {
+            table_element.style.visibility = "hidden";
+        }
+        else {
+            table_element.style.visibility = "visible";
+        }
+    }
+    function change_style(style_string) {
+        if (style_string === "crayon") {
+            table_element.className = "crayon_table";
+        }
+        else {
+            table_element.className = "pen_table";
+        }
+    }
+    function add_win(winner) {
+        var new_row = table_body_element.insertRow();
+        var number_of_rows = table_body_element.rows.length;
+        var match_number_cell = new_row.insertCell(0);
+        match_number_cell.textContent = "" + number_of_rows;
+        var winner_cell = new_row.insertCell(1);
+        winner_cell.textContent = winner;
+        if (winner === "X") {
+            winner_cell.className = "td_x";
+            player_1_count_bold.textContent = String(Number(player_1_count_bold.textContent) + 1);
+        }
+        else if (winner === "Draw") {
+            winner_cell.className = "td_draw";
+            draw_count_bold.textContent = String(Number(draw_count_bold.textContent) + 1);
+        }
+        else {
+            player_2_count_bold.textContent = String(Number(player_2_count_bold.textContent) + 1);
+        }
+    }
+    return { toggle_matches_table: toggle_matches_table, change_style: change_style, add_win: add_win };
 })();
 function CreateMarkSpace() {
     var mark_string = '-';
@@ -118,7 +182,7 @@ var HoverColor = (function () {
     }
     return { change_hover_color: change_hover_color };
 })();
-function CreateLine(mark_1, mark_2, mark_3) {
+function CreateLine(mark_1, mark_2, mark_3, win_line_to_use, degree_to_turn) {
     var line_array = [mark_1, mark_2, mark_3];
     function mark(x_or_o, array_position) {
         var mark_object = line_array[array_position];
@@ -161,6 +225,18 @@ function CreateLine(mark_1, mark_2, mark_3) {
     function set_div_element(i, div_element) {
         line_array[i].set_div_element(div_element);
     }
+    function set_win_line(line_element) {
+        win_line_to_use = line_element;
+    }
+    function set_line_rotation(rotation_value) {
+        degree_to_turn = rotation_value;
+    }
+    function show_and_rotate_line() {
+        // win_line_to_use.setAttribute("rotate", `${degree_to_turn}deg`);
+        // win_line_to_use.setAttribute("visibility", "visible");
+        win_line_to_use.style.visibility = "visible";
+        win_line_to_use.style.rotate = degree_to_turn + "deg";
+    }
     return {
         mark_x: mark_x,
         mark_o: mark_o,
@@ -168,7 +244,10 @@ function CreateLine(mark_1, mark_2, mark_3) {
         print_line: print_line,
         reset_line: reset_line,
         set_div_element: set_div_element,
-        check_all_marked: check_all_marked
+        check_all_marked: check_all_marked,
+        set_win_line: set_win_line,
+        set_line_rotation: set_line_rotation,
+        show_and_rotate_line: show_and_rotate_line
     };
 }
 function CreateBoard() {
@@ -176,22 +255,25 @@ function CreateBoard() {
     set_current_player(1);
     var match_status = "on going";
     var score_array = [];
-    var color_recorder_div = document.querySelector(".color_recorder");
     var reset_match_button = document.querySelector(".reset_match_button");
     reset_match_button.addEventListener("click", reset_or_restart_match);
-    var toggle_game_board_button = document.querySelector(".toggle_game_board");
+    var toggle_game_board_button = document.querySelector(".toggle_game_board_button");
     toggle_game_board_button.addEventListener("click", ChangeGameBoard.toggle_game_board);
+    var central_win_line = document.querySelector(".win_line");
+    var win_side_line = document.querySelector(".win_side_line");
+    var toggle_matches_table_button = document.querySelector(".toggle_matches_table_button");
+    toggle_matches_table_button.addEventListener("click", MatchesTable.toggle_matches_table);
     var _a = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_1 = _a[0], mark_2 = _a[1], mark_3 = _a[2];
     var _b = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_4 = _b[0], mark_5 = _b[1], mark_6 = _b[2];
     var _c = [CreateMarkSpace(), CreateMarkSpace(), CreateMarkSpace()], mark_7 = _c[0], mark_8 = _c[1], mark_9 = _c[2];
-    var row_1 = CreateLine(mark_1, mark_2, mark_3);
-    var row_2 = CreateLine(mark_4, mark_5, mark_6);
-    var row_3 = CreateLine(mark_7, mark_8, mark_9);
-    var column_1 = CreateLine(mark_1, mark_4, mark_7);
-    var column_2 = CreateLine(mark_2, mark_5, mark_8);
-    var column_3 = CreateLine(mark_3, mark_6, mark_9);
-    var diagonal_1 = CreateLine(mark_1, mark_5, mark_9);
-    var diagonal_2 = CreateLine(mark_7, mark_5, mark_3);
+    var row_1 = CreateLine(mark_1, mark_2, mark_3, win_side_line, 90);
+    var row_2 = CreateLine(mark_4, mark_5, mark_6, central_win_line, 90);
+    var row_3 = CreateLine(mark_7, mark_8, mark_9, win_side_line, 270);
+    var column_1 = CreateLine(mark_1, mark_4, mark_7, win_side_line, 0);
+    var column_2 = CreateLine(mark_2, mark_5, mark_8, central_win_line, 0);
+    var column_3 = CreateLine(mark_3, mark_6, mark_9, win_side_line, 180);
+    var diagonal_1 = CreateLine(mark_1, mark_5, mark_9, central_win_line, 135);
+    var diagonal_2 = CreateLine(mark_7, mark_5, mark_3, central_win_line, 45);
     var all_lines = [
         row_1, row_2, row_3,
         column_1, column_2, column_3,
@@ -266,16 +348,21 @@ function CreateBoard() {
         for (var _i = 0, all_lines_1 = all_lines; _i < all_lines_1.length; _i++) {
             var line = all_lines_1[_i];
             result_number = line.check_line_win();
-            if (result_number)
+            if (result_number) {
+                line.show_and_rotate_line();
                 break;
+            }
+            ;
         }
         if (result_number === 1) {
             console.log("Congratulations! X Won!");
             score_array.push("x");
+            MatchesTable.add_win("X");
         }
         else if (result_number === 2) {
             console.log("Congratulations! O Won!");
             score_array.push("o");
+            MatchesTable.add_win("O");
         }
         else
             console.log("Game not finished yet");
@@ -283,8 +370,10 @@ function CreateBoard() {
     }
     function check_draw() {
         var game_draw = row_1.check_all_marked() && row_2.check_all_marked() && row_3.check_all_marked();
-        if (game_draw)
+        if (game_draw) {
             score_array.push('d');
+            MatchesTable.add_win("Draw");
+        }
         return game_draw;
     }
     function reset_board() {
@@ -292,6 +381,8 @@ function CreateBoard() {
             var line_obj = board_1[_i];
             line_obj.reset_line();
         }
+        win_side_line.style.visibility = "hidden";
+        central_win_line.style.visibility = "hidden";
     }
     function set_current_player(player_number) {
         current_player = player_number;
@@ -303,10 +394,14 @@ function CreateBoard() {
         restart_game();
         match_status = "on going";
     }
+    function print_score_array() {
+        console.table(score_array);
+    }
     return {
         mark_space: mark_space,
         print_board: print_board,
-        check_win: check_win
+        check_win: check_win,
+        print_score_array: print_score_array
     };
 }
 var board = CreateBoard();
