@@ -263,3 +263,26 @@ table {
     top: 50px;
     left: 10px;
 }
+
+.photo_link_container {
+    font-family: inherit;
+    color: inherit;
+
+    position: absolute;
+    right: 10%;
+    bottom: 5%;
+
+    border-radius: 5px;
+
+    padding: 3px;
+}
+
+.crayon_link {
+    background-color: black;
+}
+
+.photo_link,
+.photographer_link {
+    font-family: inherit;
+    color: inherit;
+}

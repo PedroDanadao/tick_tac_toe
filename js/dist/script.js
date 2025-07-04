@@ -56,6 +56,9 @@ var ChangeGameBoard = (function () {
     var central_line_element = document.querySelector(".win_line");
     var win_side_line_element = document.querySelector(".win_side_line");
     var body_element = document.querySelector("body");
+    var photo_link_container = document.querySelector(".photo_link_container");
+    var photo_link = document.querySelector(".photo_link");
+    var photographer_link = document.querySelector(".photographer_link");
     function toggle_game_board() {
         var current_board = game_board_element.className;
         var new_image = '';
@@ -65,6 +68,10 @@ var ChangeGameBoard = (function () {
         var new_side_line_image = '';
         var new_font = '';
         var new_font_color = '';
+        var new_photo_link_container_class = '';
+        var new_photo_link_href = '';
+        var new_photographer_link_href = '';
+        var new_photographer_name = '';
         if (current_board == "board_container crayon_style") {
             new_image = "images/game_lines_pencil.png";
             new_class_name = "board_container pen_style";
@@ -74,6 +81,10 @@ var ChangeGameBoard = (function () {
             new_font = "Indie Flower";
             new_font_color = "blue";
             MatchesTable.change_style("pen");
+            new_photo_link_container_class = 'photo_link_container pen_link';
+            new_photo_link_href = "https://www.pexels.com/photo/blank-sheet-of-notebook-with-lines-18368498/";
+            new_photographer_link_href = "https://www.pexels.com/@heather-green-1125370/";
+            new_photographer_name = "Heather Green";
         }
         else {
             new_image = "images/game_lines_crayon.png";
@@ -84,6 +95,10 @@ var ChangeGameBoard = (function () {
             new_font = "Cabin Sketch";
             new_font_color = "white";
             MatchesTable.change_style("crayon");
+            new_photo_link_container_class = 'photo_link_container crayon_link';
+            new_photo_link_href = "https://www.pexels.com/photo/white-chalks-2675047/";
+            new_photographer_link_href = "https://www.pexels.com/@didsss/";
+            new_photographer_name = "Diana ✨";
         }
         game_board_element.style.backgroundImage = "url('" + new_image + "')";
         game_board_element.className = new_class_name;
@@ -92,6 +107,10 @@ var ChangeGameBoard = (function () {
         win_side_line_element.setAttribute("src", new_side_line_image);
         body_element.style.fontFamily = new_font;
         body_element.style.color = new_font_color;
+        photo_link_container.className = new_photo_link_container_class;
+        photo_link.setAttribute("href", new_photo_link_href);
+        photographer_link.setAttribute("href", new_photographer_link_href);
+        photographer_link.textContent = new_photographer_name;
     }
     return { toggle_game_board: toggle_game_board };
 })();
