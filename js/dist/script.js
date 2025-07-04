@@ -27,13 +27,26 @@ var PlayerDisplay = (function () {
      * Module that is responsible to change the current player display
      */
     var player_div = document.querySelector(".current_player");
+    var current_player = 1;
+    var player_1_input = document.querySelector(".pni_1");
+    var player_2_input = document.querySelector(".pni_2");
+    player_1_input.addEventListener("change", update_current_player_div);
     function change_player(player_number) {
-        if (player_number === 1) {
-            player_div.textContent = "Current Player: Player 1 (X)";
+        current_player = player_number;
+        update_current_player_div();
+    }
+    function update_current_player_div() {
+        var input_to_use = player_1_input;
+        var mark_to_use = 'X';
+        if (current_player == 2) {
+            input_to_use = player_2_input;
+            mark_to_use = 'O';
         }
-        else if (player_number === 2) {
-            player_div.textContent = "Current Player: Player 2 (O)";
-        }
+        var input_value = input_to_use.value;
+        var player_name = "Player " + current_player;
+        if (input_value)
+            player_name = input_value;
+        player_div.textContent = "Current Player: " + player_name + " (" + mark_to_use + ")";
     }
     return { change_player: change_player };
 })();

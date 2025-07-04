@@ -33,13 +33,33 @@ const PlayerDisplay = (function() {
      */
     const player_div = document.querySelector(".current_player") as HTMLDivElement;
 
+    let current_player = 1;
+
+    const player_1_input = document.querySelector(".pni_1") as HTMLInputElement;
+    const player_2_input = document.querySelector(".pni_2") as HTMLInputElement;
+
+    player_1_input.addEventListener("change", update_current_player_div)
+
     function change_player(player_number: number) {
-        if (player_number === 1) {
-            player_div.textContent = "Current Player: Player 1 (X)";
+        current_player = player_number;
+        update_current_player_div();
+    }
+
+    function update_current_player_div() {
+        let input_to_use = player_1_input;
+        let mark_to_use = 'X'
+        
+        if (current_player == 2) {
+            input_to_use = player_2_input;
+            mark_to_use = 'O';
         }
-        else if (player_number === 2) {
-            player_div.textContent = "Current Player: Player 2 (O)";
-        }
+
+        const input_value = input_to_use.value;
+
+        let player_name = `Player ${current_player}`;
+        if (input_value) player_name = input_value;
+        
+        player_div.textContent = `Current Player: ${player_name} (${mark_to_use})`;
     }
 
     return {change_player};

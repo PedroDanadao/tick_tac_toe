@@ -40,6 +40,36 @@ button {
     border: none;
 }
 
+.player_name_input {
+    font-family: inherit;
+}
+
+.player_1_win_count,
+.player_2_win_count,
+.draws_count {
+    margin-bottom: 5px;
+}
+
+#tooltip_div {
+    visibility: hidden;
+
+    position: absolute;
+    z-index: 1;
+
+    background-color: rgb(247, 247, 168);
+    border: solid 1px black;
+    padding: 2px 5px;
+
+    font-family: inherit;
+    font-weight: normal;
+
+    color: black;
+}
+.player_1_win_count:hover~#tooltip_div,
+.player_2_win_count:hover~#tooltip_div {
+    visibility: visible;
+}
+
 .toggle_matches_table_button {
     margin-top: 10px;
 }

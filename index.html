@@ -19,9 +19,22 @@
     <!-- <h1>Tic Tac Toe</h1> -->
 
     <div class="score_container">
-        <div class="player_1_win_count">Player 1(X) number of wins: <b>0</b></div>
-        <div class="player_2_win_count">Player 2(O) number of wins: <b>0</b></div>
+        <div class="player_1_win_count">
+            <input type="text" placeholder="Player 1" class="player_name_input pni_1"></input>
+             (X) number of wins: <b>0</b>
+        </div>
+        <div class="player_2_win_count">
+            <input type="text" placeholder="Player 2" class="player_name_input pni_2"></input>
+             (O) number of wins: <b>0</b>
+        </div>
+        
+        <div role="tooltip" id="tooltip_div">
+            Set the name and press enter to change the player name displayed.
+        </div>
+        
         <div class="draws_count">Number of draws: <b>0</b></div>
+
+
         <button class="toggle_matches_table_button crayon_button">Show Matches Table</button>
 
         <table class="crayon_table">
